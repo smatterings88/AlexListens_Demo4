@@ -128,8 +128,8 @@ async function saveTranscriptToFirebase(userId: string, transcripts: Transcript[
 
     console.log('Preparing to save transcript:', { userId, transcriptCount: transcripts.length });
 
-    const startTime = new Date(transcripts[0]?.timestamp || new Date());
-    const endTime = new Date(transcripts[transcripts.length - 1]?.timestamp || new Date());
+    const startTime = new Date();
+    const endTime = new Date();
 
     const callTranscript = {
       userId,
@@ -138,7 +138,7 @@ async function saveTranscriptToFirebase(userId: string, transcripts: Transcript[
       transcripts: transcripts.map(t => ({
         speaker: t.speaker,
         text: t.text,
-        timestamp: Timestamp.fromDate(new Date(t.timestamp || new Date()))
+        timestamp: Timestamp.fromDate(new Date())
       })),
       emotionalInsights: emotionalInsights.map(insight => ({
         category: insight.category || 'neutral',
