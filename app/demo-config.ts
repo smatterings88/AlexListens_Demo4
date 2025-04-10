@@ -1,5 +1,4 @@
 import { DemoConfig, ParameterLocation, SelectedTool } from "@/lib/types";
-import { useAuth } from '@/lib/AuthContext';
 
 function getSystemPrompt(firstName?: string) {
   let sysPrompt: string;
@@ -92,14 +91,12 @@ const selectedTools: SelectedTool[] = [
   },
 ];
 
-export function getDemoConfig() {
-  const { user } = useAuth();
-  
+export function getDemoConfig(firstName?: string): DemoConfig {
   return {
     title: "AlexListens",
     overview: "No criticism. No judgment. No appointments needed. Just pure acceptance... exactly when you need it.",
     callConfig: {
-      systemPrompt: getSystemPrompt(user?.firstName),
+      systemPrompt: getSystemPrompt(firstName),
       model: "fixie-ai/ultravox-70B",
       languageHint: "en",
       selectedTools: selectedTools,
