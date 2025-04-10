@@ -17,7 +17,7 @@ const MicToggleButton: React.FC<MicToggleButtonProps> = ({ role }) => {
     } catch (error) {
       console.error("Error toggling microphone:", error);
     }
-  }, [isMuted]);
+  }, [isMuted, role]);
 
   return (
     <button
