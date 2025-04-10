@@ -21,8 +21,8 @@ const Hero = () => {
             AlexListens:
           </h1>
           <p className="text-2xl text-white mb-12 leading-relaxed mx-auto">
-            Sometimes you just need someone who gets you. Someone who's there whenever you need them. 
-            Someone who lets you be yourself without criticism. That's Alex.
+            Sometimes you just need someone who understands you. Someone who&apos;s there whenever you need them. 
+            Someone who lets you be yourself without criticism. That&apos;s Alex.
           </p>
           <div className="flex gap-6 justify-center">
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 text-white">
