@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Dialog } from '@headlessui/react';
 import { auth, db } from '@/lib/firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, writeBatch } from 'firebase/firestore';
 import toast from 'react-hot-toast';
 
 interface SignUpModalProps {
@@ -56,14 +56,17 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
         return;
       }
 
-      // Create auth user
+      // Create auth user first
       const userCredential = await createUserWithEmailAndPassword(
         auth,
         formData.email,
         formData.password
       );
 
-      // Store additional user data in Firestore
+      // Use a batch write to ensure both documents are created or neither is
+      const batch = writeBatch(db);
+
+      // Prepare user data
       const userData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -73,18 +76,36 @@ export default function SignUpModal({ isOpen, onClose }: SignUpModalProps) {
         createdAt: new Date().toISOString(),
       };
 
-      await setDoc(doc(db, 'users', userCredential.user.uid), userData);
+      // Add user document to batch
+      const userRef = doc(db, 'users', userCredential.user.uid);
+      batch.set(userRef, userData);
 
-      // Store username mapping
-      await setDoc(doc(db, 'usernames', formData.username.toLowerCase()), {
+      // Add username mapping to batch
+      const usernameRef = doc(db, 'usernames', formData.username.toLowerCase());
+      batch.set(usernameRef, {
         uid: userCredential.user.uid
       });
+
+      // Commit the batch
+      await batch.commit();
 
       toast.success('Account created successfully!');
       onClose();
     } catch (error: any) {
       console.error('Signup error:', error);
-      toast.error(error.message || 'Failed to create account. Please try again.');
+      
+      // Handle specific Firebase Auth error codes
+      if (error.code === 'auth/email-already-in-use') {
+        toast.error('Email is already registered');
+      } else if (error.code === 'auth/invalid-email') {
+        toast.error('Invalid email format');
+      } else if (error.code === 'auth/weak-password') {
+        toast.error('Password should be at least 6 characters');
+      } else if (error.code === 'permission-denied') {
+        toast.error('Permission denied. Please try again.');
+      } else {
+        toast.error('Failed to create account. Please try again.');
+      }
     } finally {
       setIsLoading(false);
     }
